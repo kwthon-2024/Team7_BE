@@ -1,58 +1,60 @@
 package com.team7.club.user.jwt;
 
-import jakarta.servlet.FilterChain;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.HttpServletRequest;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
-import org.springframework.web.filter.GenericFilterBean;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.web.filter.OncePerRequestFilter;
 
 
 import java.io.IOException;
 
-@Slf4j
-@RequiredArgsConstructor
-public class JwtAuthenticationFilter extends GenericFilterBean {
+import com.team7.club.user.security.CustomUserPrincipal;
 
-	private static final String AUTHORIZATION_HEADER = "Authorization";
-	private static final String BEARER_TYPE = "Bearer";
+import jakarta.servlet.FilterChain;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+
+public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisTemplate redisTemplate;
 
-	@Override
-	public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain) throws IOException,
-		ServletException {
-
-		//  Request Header 에서 JWT 토큰 추출
-		String token = resolveToken((HttpServletRequest) request);
-
-		//  토큰 유효성 검사
-		if (token != null && jwtTokenProvider.validateToken(token)) {
-			// accessToken logout 여부 확인
-			String isLogout = (String)redisTemplate.opsForValue().get(token);
-			if (ObjectUtils.isEmpty(isLogout)) {
-				// 토큰이 유효할 경우
-				Authentication authentication = jwtTokenProvider.getAuthentication(token);
-				SecurityContextHolder.getContext().setAuthentication(authentication);
-			}
-		}
-		chain.doFilter(request, response);
+	public JwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider, RedisTemplate redisTemplate) {
+		this.jwtTokenProvider = jwtTokenProvider;
+		this.redisTemplate = redisTemplate;
 	}
 
-	// Request Header 에서 토큰 정보 추출
 	private String resolveToken(HttpServletRequest request) {
-		String bearerToken = request.getHeader(AUTHORIZATION_HEADER);
-		if (StringUtils.hasText(bearerToken) && bearerToken.startsWith(BEARER_TYPE)) {
+		String bearerToken = request.getHeader("Authorization");
+		if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
 			return bearerToken.substring(7);
 		}
 		return null;
+	}
+
+	@Override
+	protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response,
+		FilterChain filterChain) throws ServletException, IOException {
+		// JWT 토큰 추출
+		String token = resolveToken(request);
+
+		// 토큰 유효성 검사
+		if (token != null && jwtTokenProvider.validateToken(token)) {
+			String isLogout = (String) redisTemplate.opsForValue().get(token);
+			if (isLogout == null) {
+				// Authentication을 SecurityContext에 설정
+				CustomUserPrincipal customUserPrincipal = jwtTokenProvider.getUserFromToken(token);
+				if (customUserPrincipal != null) {
+					Authentication authentication = new UsernamePasswordAuthenticationToken(
+						customUserPrincipal, null, customUserPrincipal.getAuthorities());
+					SecurityContextHolder.getContext().setAuthentication(authentication);
+				}
+			}
+		}
+
+		filterChain.doFilter(request, response);
 	}
 }
