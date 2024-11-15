@@ -46,7 +46,7 @@ jobs:
           spring.jpa.properties.hibernate.format_sql=true
           spring.jpa.hibernate.ddl-auto=update
           jwt.secret=${{ secrets.JWT_SECRET }}
-          spring.data.redis.host=localhost
+          spring.data.redis.host=${{ secrets.REDIS_HOST }}
           spring.data.redis.port=6379
           EOT
         shell: bash
