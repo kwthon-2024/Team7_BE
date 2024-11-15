@@ -24,7 +24,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @Getter
 @Entity
 @Table(name="users")
-public class User extends BaseTime implements UserDetails {
+public class Users extends BaseTime implements UserDetails {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
