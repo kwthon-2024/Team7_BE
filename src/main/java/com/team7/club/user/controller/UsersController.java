@@ -8,9 +8,13 @@ import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import com.team7.club.common.config.AuthUser;
 import com.team7.club.common.config.http.Response;
 import com.team7.club.common.config.lib.Helper;
 import com.team7.club.user.dto.request.UserRequestDto;
+
+import com.team7.club.user.entity.Users;
+import com.team7.club.user.security.CustomUserPrincipal;
 import com.team7.club.user.service.UsersService;
 
 @Slf4j
@@ -59,6 +63,12 @@ public class UsersController {
 			return response.invalidFields(Helper.refineErrors(errors));
 		}
 		return usersService.logout(logout);
+	}
+
+	@PostMapping("/test")
+	public void test(@AuthUser CustomUserPrincipal customUserPrincipal) {
+		Users users= customUserPrincipal.getUser();
+		System.out.println(users.getName());
 	}
 
 }
