@@ -46,8 +46,11 @@ public class SecurityConfig {
 					"/api/users/sign-up",
 					"/api/users/login",
 					"/api/users/reissue",
-					"/api/users/logout"
+					"/api/users/logout",
+
+					"/**"
 				).permitAll()
+
 				.requestMatchers("/api/users/userTest").hasRole("USER")
 				.requestMatchers("/api/users/adminTest").hasRole("ADMIN")
 				.anyRequest().authenticated()

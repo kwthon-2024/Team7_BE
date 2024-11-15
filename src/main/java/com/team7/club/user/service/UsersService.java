@@ -19,7 +19,7 @@ import java.util.concurrent.TimeUnit;
 import com.team7.club.common.config.http.Response;
 import com.team7.club.user.dto.reponse.UserResponseDto;
 import com.team7.club.user.dto.request.UserRequestDto;
-import com.team7.club.user.entity.User;
+import com.team7.club.user.entity.Users;
 import com.team7.club.user.jwt.JwtTokenProvider;
 import com.team7.club.user.repository.UsersRepository;
 
@@ -41,7 +41,7 @@ public class UsersService {
 			return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
 		}
 
-		User user = User.builder()
+		Users users = Users.builder()
 			.email(signUp.getEmail())
 			.password(passwordEncoder.encode(signUp.getPassword()))
 			.name(signUp.getName())
@@ -49,20 +49,20 @@ public class UsersService {
 			.clubRole(signUp.getClubRole())
 			.studentNumber(signUp.getStudentNumber())
 			.build();
-		usersRepository.save(user);
+		usersRepository.save(users);
 
 		return response.success("회원가입에 성공했습니다.");
 	}
 
 	public ResponseEntity<?> login(UserRequestDto.Login login) {
-		User user = usersRepository.findByEmail(login.getEmail()).orElseThrow(() -> new NoSuchElementException("유저가 없습니다"));
+		Users users = usersRepository.findByEmail(login.getEmail()).orElseThrow(() -> new NoSuchElementException("유저가 없습니다"));
 
 		if (usersRepository.findByEmail(login.getEmail()).orElse(null) == null) {
 			return response.fail("해당 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
 		}
 
 
-		if(!passwordEncoder.matches(login.getPassword(), user.getPassword())){
+		if(!passwordEncoder.matches(login.getPassword(), users.getPassword())){
 			return response.fail("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
 		}
 
