@@ -7,8 +7,10 @@ import com.team7.club.common.config.lib.Helper;
 import com.team7.club.community.dto.request.PostRequestDto;
 import com.team7.club.community.entity.Post;
 import com.team7.club.community.service.PostService;
+import com.team7.club.photo.util.S3Util;
 import com.team7.club.user.entity.Users;
 import com.team7.club.user.security.CustomUserPrincipal;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,24 +35,40 @@ import org.springframework.web.multipart.MultipartFile;
 public class PostController {
     private final PostService postService;
     private final Response response;
+    private final S3Util s3Util;
 
-//  게시글 등록
     @PostMapping
-    public ResponseEntity<?> post(@Validated @RequestPart(value = "post") PostRequestDto.Post post,
-                                  @RequestPart(value = "files", required = false) List<MultipartFile> files,
-                                  Errors errors,
-                                  @AuthUser CustomUserPrincipal customUserPrincipal) {
+    public ResponseEntity<?> post(
+            @Validated @RequestPart(value = "post") PostRequestDto.Post post,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files,
+            Errors errors,
+            @AuthUser CustomUserPrincipal customUserPrincipal) {
+
         if (errors.hasErrors()) {
             return response.invalidFields(Helper.refineErrors(errors));
         }
-        Users users= customUserPrincipal.getUser();
+
+        Users users = customUserPrincipal.getUser();
+
+        // S3에 업로드한 이미지 URL 리스트 생성
+        List<String> imageUrls = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                String imageUrl = s3Util.upload(file);
+                imageUrls.add(imageUrl);
+            }
+        }
+
         Post savedPost = Post.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
-                .image(post.getImage())
+                .postCategory(post.getPostCategory())
+                .image(String.join(",", imageUrls)) // URL들을 콤마로 연결
                 .build();
+
         return postService.savePost(savedPost, users);
     }
+
 
 //  게시글 수정
     @PutMapping("/{postId}")
@@ -62,11 +80,23 @@ public class PostController {
             return response.invalidFields(Helper.refineErrors(errors));
         }
         Users users= customUserPrincipal.getUser();
+
+        // S3에 업로드한 이미지 URL 리스트 생성
+        List<String> imageUrls = new ArrayList<>();
+        if (files != null && !files.isEmpty()) {
+            for (MultipartFile file : files) {
+                String imageUrl = s3Util.upload(file);
+                imageUrls.add(imageUrl);
+            }
+        }
+
         Post savedPost = Post.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
-                .image(post.getImage())
+                .postCategory(post.getPostCategory())
+                .image(String.join(",", imageUrls)) // URL들을 콤마로 연결
                 .build();
+
         return postService.updatePost(postId, savedPost);
     }
 

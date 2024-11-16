@@ -3,6 +3,7 @@ package com.team7.club.community.dto.request;
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategies;
 import com.fasterxml.jackson.databind.annotation.JsonNaming;
+import com.team7.club.community.entity.PostCategory;
 import com.team7.club.user.entity.ClubRole;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -25,6 +26,8 @@ public class PostRequestDto {
 
         @NotEmpty(message = "내용은 필수 입력값입니다.")
         private String content;
+
+        private PostCategory postCategory;
 
         private String image;
     }

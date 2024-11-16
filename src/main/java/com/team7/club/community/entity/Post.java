@@ -2,9 +2,12 @@ package com.team7.club.community.entity;
 
 import com.team7.club.clubs.entity.Club;
 import com.team7.club.user.entity.BaseTime;
+import com.team7.club.user.entity.ClubRole;
 import com.team7.club.user.entity.Users;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.EnumType;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
@@ -41,6 +44,10 @@ public class Post extends BaseTime {
 
     @Column
     private String writer;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "post_category", nullable = false)
+    private PostCategory postCategory;
 
     @ManyToOne
     @JoinColumn(name = "club_id")

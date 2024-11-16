@@ -1,9 +1,11 @@
 package com.team7.club.community.service;
 
 import com.team7.club.clubs.repository.ClubRepository;
+import com.team7.club.common.config.S3Config;
 import com.team7.club.common.config.http.Response;
 import com.team7.club.community.entity.Post;
 import com.team7.club.community.repository.PostRepository;
+import com.team7.club.photo.util.S3Util;
 import com.team7.club.user.entity.Users;
 import com.team7.club.user.repository.UsersRepository;
 import com.team7.club.user.service.UsersService;
@@ -21,6 +23,7 @@ public class PostService {
     private final UsersRepository usersRepository;
     private final ClubRepository clubRepository;
     private final Response response;
+    private final S3Util s3Util;
 
 
     public ResponseEntity<?> savePost(Post savedPost, Users user) {
@@ -33,15 +36,31 @@ public class PostService {
 
     public ResponseEntity<?> updatePost(Long postId, Post updatedPost) {
         Post post = postRepository.findById(postId).get();
-
+        //이전 이미지 삭제
+        if (!post.getImage().isEmpty()) {
+            List<String> imageList = List.of(post.getImage().split(","));
+            for (String image : imageList) {
+                s3Util.deleteFile(image);
+            }
+        }
         post.setTitle(updatedPost.getTitle());
         post.setContent(updatedPost.getContent());
+        post.setImage(updatedPost.getImage());
+        post.setPostCategory(updatedPost.getPostCategory());
         post.setImage(updatedPost.getImage());
         postRepository.save(post);
         return response.success("게시글 수정 성공");
     }
 
     public ResponseEntity<?> deletePost(Long postId) {
+        Post post = postRepository.findById(postId).get();
+        //이전 이미지 삭제
+        if (!post.getImage().isEmpty()) {
+            List<String> imageList = List.of(post.getImage().split(","));
+            for (String image : imageList) {
+                s3Util.deleteFile(image);
+            }
+        }
         postRepository.deleteById(postId);
         return response.success("게시글 삭제 성공");
     }
