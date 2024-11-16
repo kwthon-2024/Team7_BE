@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.validation.annotation.Validated;
@@ -22,7 +23,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,21 +50,35 @@ public class PostController {
 
         Users users = customUserPrincipal.getUser();
 
-        // S3에 업로드한 이미지 URL 리스트 생성
+        System.out.print("file:"+files.isEmpty());
+
+// S3에 업로드한 이미지 URL 리스트 생성
         List<String> imageUrls = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
+            System.out.println("why"); // 디버깅용 출력
             for (MultipartFile file : files) {
-                String imageUrl = s3Util.upload(file);
-                imageUrls.add(imageUrl);
+                if (file != null && !file.isEmpty()) { // 파일이 비어있는지 확인
+                    System.out.println(file);
+                    String imageUrl = s3Util.upload(file);
+                    imageUrls.add(imageUrl);
+                } else {
+                    System.out.println("Empty file detected: " + file);
+                }
             }
         }
+
+
 
         Post savedPost = Post.builder()
                 .title(post.getTitle())
                 .content(post.getContent())
                 .postCategory(post.getPostCategory())
-                .image(String.join(",", imageUrls)) // URL들을 콤마로 연결
                 .build();
+
+
+        if(!imageUrls.isEmpty()){
+            savedPost.setImage(String.join(",", imageUrls));
+        }
 
         return postService.savePost(savedPost, users);
     }
@@ -80,29 +94,51 @@ public class PostController {
             return response.invalidFields(Helper.refineErrors(errors));
         }
         Users users= customUserPrincipal.getUser();
+        Post currentPost = postService.getCurPost(postId);
+        if (currentPost.getUser().getId() != users.getId()) {
+            return response.fail("작성자만 수정이 가능합니다!", HttpStatus.FORBIDDEN);
+        }
 
-        // S3에 업로드한 이미지 URL 리스트 생성
+        System.out.print("file:"+files);
+
+// S3에 업로드한 이미지 URL 리스트 생성
         List<String> imageUrls = new ArrayList<>();
         if (files != null && !files.isEmpty()) {
+            System.out.println("why"); // 디버깅용 출력
             for (MultipartFile file : files) {
-                String imageUrl = s3Util.upload(file);
-                imageUrls.add(imageUrl);
+                if (file != null && !file.isEmpty()) { // 파일이 비어있는지 확인
+                    System.out.println(file);
+                    String imageUrl = s3Util.upload(file);
+                    imageUrls.add(imageUrl);
+                } else {
+                    System.out.println("Empty file detected: " + file);
+                }
             }
         }
 
+
         Post savedPost = Post.builder()
-                .title(post.getTitle())
-                .content(post.getContent())
-                .postCategory(post.getPostCategory())
-                .image(String.join(",", imageUrls)) // URL들을 콤마로 연결
+                .title(currentPost.getTitle())
+                .content(currentPost.getContent())
+                .postCategory(currentPost.getPostCategory())
                 .build();
+
+        if(!imageUrls.isEmpty()){
+            savedPost.setImage(String.join(",", imageUrls));
+        }
 
         return postService.updatePost(postId, savedPost);
     }
 
 //  게시글 삭제
     @DeleteMapping("/{postId}")
-    public ResponseEntity<?> deletePost(@PathVariable Long postId) {
+    public ResponseEntity<?> deletePost(@PathVariable Long postId, @AuthUser CustomUserPrincipal customUserPrincipal) {
+        Users users= customUserPrincipal.getUser();
+        Post currentPost = postService.getCurPost(postId);
+        if (currentPost.getUser().getId() != users.getId()) {
+            return response.fail("작성자만 삭제가 가능합니다!", HttpStatus.FORBIDDEN);
+        }
+
         return postService.deletePost(postId);
     }
 

@@ -70,8 +70,13 @@ public class PostService {
         return response.success(postList);
     }
 
-    public  ResponseEntity<?> getPost(Long postId) {
+    public ResponseEntity<?> getPost(Long postId) {
         Post post = postRepository.findById(postId).get();
         return response.success(post);
+    }
+
+    public Post getCurPost(Long postId){
+        Post post = postRepository.getById(postId);
+        return post;
     }
 }
