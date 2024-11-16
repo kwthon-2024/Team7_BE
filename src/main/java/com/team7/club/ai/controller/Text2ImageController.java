@@ -3,29 +3,34 @@ package com.team7.club.ai.controller;
 
 
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.team7.club.ai.annotation.AiApi;
 import com.team7.club.ai.service.AIService;
 import com.team7.club.ai.service.GoogleService;
 import com.team7.club.ai.service.StorageService;
 
+@AiApi
 @RestController
 @RequestMapping("/api/image")
 @RequiredArgsConstructor
+
 public class Text2ImageController {
 	private final AIService aiService;
-	private final StorageService s3Service;
 
 	private final GoogleService googleService;
-	@GetMapping("")
-	public String test(@RequestBody String word){
-		String testWord = googleService.translateText(word);
-		System.out.println(testWord);
-		return testWord;
-	}
+
+	@Operation(summary = "이미지 생성", description = "이미지 생성")
+	@ApiResponses(value = {
+		@ApiResponse(responseCode = "200", description = "이미지 생성 성공"),
+		@ApiResponse(responseCode = "400", description = "잘못된 요청")
+	})
 	@PostMapping("/generate")
 	public ResponseEntity<?> generateImage(@RequestBody String prompt) throws Exception {
 		String word= googleService.translateText(prompt);
@@ -33,17 +38,5 @@ public class Text2ImageController {
 		return new ResponseEntity<>(aiService.generateImage(word), HttpStatus.OK);
 	}
 
-	@GetMapping("/get-history")
-	public ResponseEntity<?> getHistory() {
-
-		return new ResponseEntity<>(s3Service.listObjects(), HttpStatus.OK);
-	}
-
-	@DeleteMapping("/delete")
-	public ResponseEntity<?> deleteImage(@RequestParam("name") String name) {
-
-		s3Service.deleteObject(name);
-		return new ResponseEntity<>(true, HttpStatus.OK);
-	}
 }
 
