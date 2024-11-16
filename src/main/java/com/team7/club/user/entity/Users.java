@@ -45,7 +45,6 @@ public class Users extends BaseTime implements UserDetails {
 	@Column
 	private String clubName;
 
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "club_role", nullable = false)
 	private ClubRole clubRole;
