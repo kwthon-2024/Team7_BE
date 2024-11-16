@@ -4,11 +4,11 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import com.team7.club.user.entity.Users; // 정확한 경로로 import
-import com.team7.club.notice.Entity.NoticeImage;
-import java.util.ArrayList;
-import java.util.List;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+import com.team7.club.user.entity.Users;
 
+import java.time.LocalDateTime;
 
 @Entity
 @Getter
@@ -26,25 +26,23 @@ public class Notice {
     @JoinColumn(name = "id", nullable = false)
     private Users user; // 사용자 식별 번호
 
-    @Column(name = "title", nullable = false, length =10)
+    @Column(name = "title", nullable = false, length = 10)
     private String title; // 제목
 
     @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content; // 내용
 
-    @OneToMany(mappedBy = "notice", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NoticeImage> images = new ArrayList<>(); // 기본값 빈 리스트로 초기화
+    @CreationTimestamp
+    @Column(name = "created_date", nullable = false, updatable = false)
+    private LocalDateTime createdDate; // 생성일
 
+    @UpdateTimestamp
+    @Column(name = "updated_date", nullable = false)
+    private LocalDateTime updatedDate; // 수정일
 
-
-
-    public Notice(Users user, String title, String content, String image) {
+    public Notice(Users user, String title, String content) {
         this.user = user;
         this.title = title;
         this.content = content;
-    }
-    public void addImage(NoticeImage image) {
-        images.add(image);
-        image.setNotice(this);
     }
 }

@@ -31,20 +31,26 @@ public class NoticeService {
                         notice.getUser().getId(), // User의 ID 반환
                         notice.getTitle(),
                         notice.getContent(),
-                        notice.getImage()))
+                        notice.getCreatedDate(), // 생성일
+                        notice.getUpdatedDate()  // 수정일
+                ))
                 .collect(Collectors.toList());
     }
+
 
     // ID로 공지사항 조회
     public NoticeResponseDto getNoticeById(Long notificationId) {
         Notice notice = noticeRepository.findById(notificationId)
                 .orElseThrow(() -> new RuntimeException("Notice not found"));
+
         return new NoticeResponseDto(
                 notice.getNotificationId(),
                 notice.getUser().getId(), // User의 ID 반환
                 notice.getTitle(),
                 notice.getContent(),
-                notice.getImage());
+                notice.getCreatedDate(), // 생성일
+                notice.getUpdatedDate()  // 수정일
+        );
     }
 
     // 공지사항 생성
@@ -60,8 +66,7 @@ public class NoticeService {
         Notice notice = new Notice(
                 user, // 현재 인증된 사용자
                 requestDto.getTitle(),
-                requestDto.getContent(),
-                requestDto.getImage()
+                requestDto.getContent()
         );
 
         Notice savedNotice = noticeRepository.save(notice);
@@ -71,7 +76,8 @@ public class NoticeService {
                 savedNotice.getUser().getId(), // User의 ID 반환
                 savedNotice.getTitle(),
                 savedNotice.getContent(),
-                savedNotice.getImage()
+                savedNotice.getCreatedDate(), // 생성일
+                savedNotice.getUpdatedDate()
         );
     }
 
@@ -91,7 +97,6 @@ public class NoticeService {
         notice.setUser(user);
         notice.setTitle(requestDto.getTitle());
         notice.setContent(requestDto.getContent());
-        notice.setImage(requestDto.getImage());
 
         Notice updatedNotice = noticeRepository.save(notice);
 
@@ -100,7 +105,8 @@ public class NoticeService {
                 updatedNotice.getUser().getId(), // User의 ID 반환
                 updatedNotice.getTitle(),
                 updatedNotice.getContent(),
-                updatedNotice.getImage()
+                updatedNotice.getCreatedDate(), // 생성일
+                updatedNotice.getUpdatedDate()  // 수정일
         );
     }
 

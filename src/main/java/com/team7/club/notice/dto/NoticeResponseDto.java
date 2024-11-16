@@ -3,7 +3,7 @@ package com.team7.club.notice.dto;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Getter
 @Setter
@@ -13,13 +13,16 @@ public class NoticeResponseDto {
     private Long userId; // 사용자 ID
     private String title; // 제목
     private String content; // 내용
-    private List<String> images; // 이미지 경로 리스트
+    private LocalDateTime createdDate; // 생성일
+    private LocalDateTime updatedDate; // 수정일
 
-    public NoticeResponseDto(Long notificationId, Long userId, String title, String content, List<String> images) {
+    public NoticeResponseDto(Long notificationId, Long userId, String title, String content,
+                             LocalDateTime createdDate, LocalDateTime updatedDate) {
         this.notificationId = notificationId;
         this.userId = userId;
         this.title = title;
         this.content = content;
-        this.images = images;
+        this.createdDate = createdDate;
+        this.updatedDate = updatedDate;
     }
 }

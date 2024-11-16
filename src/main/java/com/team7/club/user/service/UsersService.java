@@ -65,7 +65,7 @@ public class UsersService {
 			clubRepository.save(club.get());
 		}
 		//TODO 수정
-		if (users.getClubRole() == ClubRole.ADMIN) {
+		if (users.getClubRole() == ClubRole.ROLE_ADMIN) {
 			club.get().setClubDepartment(signUp.getClubDepartment());
 			club.get().setClubMember(signUp.getClubMember());
 			club.get().setClubProfessor(signUp.getClubProfessor());
