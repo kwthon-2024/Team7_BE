@@ -54,6 +54,23 @@ jobs:
           cloud.aws.credentials.secret-key=${{ secrets.SECRET_KEY }}
           cloud.aws.region.static=ap-northeast-2
           cloud.aws.s3.bucket=team7buckets
+          
+          openai.api.key=${{ secrets.AI_API_KEY }}
+          image.api.key=${{ secrets.IMAGE_API_KEY }}
+          EOT
+        shell: bash
+
+      - name: Create cedar-booth-441904-s9-ace0d699d4dd.json
+        run: |
+          cat <<EOT > ./src/main/resources/translation/cedar-booth-441904-s9-ace0d699d4dd.json
+          ${{ secrets.JSON }}
+          EOT
+        shell: bash
+
+      - name: Create cedar-booth-441904-s9-ace0d699d4dd.json
+        run: |
+          cat <<EOT > ./src/test/resources/translation/cedar-booth-441904-s9-ace0d699d4dd.json
+          ${{ secrets.JSON }}
           EOT
         shell: bash
 
@@ -67,7 +84,9 @@ jobs:
           echo "cloud.aws.credentials.secret-key=${{ secrets.SECRET_KEY }}" >> ./src/test/resources/application.properties
           echo "cloud.aws.region.static=ap-northeast-2" >> ./src/test/resources/application.properties
           echo "cloud.aws.s3.bucket=team7buckets" >> ./src/test/resources/application.properties
-          
+          echo "openai.api.key=${{ secrets.AI_API_KEY }}" >> ./src/test/resources/application.properties
+          ehco "image.api.key=${{ secrets.IMAGE_API_KEY }}" >> ./src/test/resources/application.properties
+        shell: bash
 
       - name: Build with Gradle
         run: |

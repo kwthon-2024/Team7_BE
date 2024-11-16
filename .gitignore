@@ -37,3 +37,4 @@ out/
 .vscode/
 
 /src/main/resources/application.properties
+/src/main/resources/translation/cedar-booth-441904-s9-ace0d699d4dd.json
