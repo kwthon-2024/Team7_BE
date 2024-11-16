@@ -30,7 +30,7 @@ public class Club extends BaseTime {
 	private Long id;
 
 	@Column
-	private String clubName;
+	private String clubName; //동아리 이름
 	@Column
 	private Integer clubMember; //동아리 인원
 	@Column
@@ -40,7 +40,13 @@ public class Club extends BaseTime {
 	@Column
 	private String professorDepartment; //동아리 지도 교수 학부
 	@Column
+	private String chairManName; //회장 이름
+	@Column
+	private String chairManDepartment; //회장 학부
+	@Column
 	private Integer grade; // 학년
+	@Column
+	private String studentNumber; //회장 학번
 	@Column
 	private String phoneNumber; // 회장 전화번호
 
