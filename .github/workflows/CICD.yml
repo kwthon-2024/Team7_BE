@@ -85,7 +85,7 @@ jobs:
           echo "cloud.aws.region.static=ap-northeast-2" >> ./src/test/resources/application.properties
           echo "cloud.aws.s3.bucket=team7buckets" >> ./src/test/resources/application.properties
           echo "openai.api.key=${{ secrets.AI_API_KEY }}" >> ./src/test/resources/application.properties
-          ehco "image.api.key=${{ secrets.IMAGE_API_KEY }}" >> ./src/test/resources/application.properties
+          echo "image.api.key=${{ secrets.IMAGE_API_KEY }}" >> ./src/test/resources/application.properties
         shell: bash
 
       - name: Build with Gradle
