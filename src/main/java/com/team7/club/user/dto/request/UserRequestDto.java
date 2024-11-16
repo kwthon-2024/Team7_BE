@@ -24,7 +24,6 @@ public class UserRequestDto {
 	@Getter
 	@Setter
 	public static class SignUp {
-
 		@NotEmpty(message = "이름은 필수 입력값입니다.")
 		private String name;
 
@@ -44,6 +43,14 @@ public class UserRequestDto {
 
 		@NotNull(message = "동아리 직책은 필수 입력값입니다.")
 		private ClubRole clubRole;
+
+		private Integer grade; //학년
+
+		private Integer clubMember; //동아리 인원
+		private String clubProfessor; //동아리 지도 교수
+
+		private String clubDepartment; //동아리 소속학부
+		private String professorDepartment; //동아리 지도 교수 학부
 	}
 
 	@Getter

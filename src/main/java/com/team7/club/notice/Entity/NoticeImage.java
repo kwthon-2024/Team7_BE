@@ -1,4 +1,4 @@
-package com.team7.club.notice.entity;
+package com.team7.club.notice.Entity;
 
 import com.team7.club.notice.Entity.Notice;
 import jakarta.persistence.*;

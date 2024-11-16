@@ -11,14 +11,19 @@ import org.springframework.security.config.annotation.authentication.builders.Au
 import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import com.team7.club.clubs.entity.Club;
+import com.team7.club.clubs.repository.ClubRepository;
 import com.team7.club.common.config.http.Response;
 import com.team7.club.user.dto.reponse.UserResponseDto;
 import com.team7.club.user.dto.request.UserRequestDto;
+import com.team7.club.user.entity.ClubRole;
 import com.team7.club.user.entity.Users;
 import com.team7.club.user.jwt.JwtTokenProvider;
 import com.team7.club.user.repository.UsersRepository;
@@ -35,7 +40,9 @@ public class UsersService {
 	private final AuthenticationManagerBuilder authenticationManagerBuilder;
 	private final RedisTemplate<String, String> redisTemplate;
 
+	private final ClubRepository clubRepository;
 
+	@Transactional
 	public ResponseEntity<?> signUp(UserRequestDto.SignUp signUp) {
 		if (usersRepository.existsByEmail(signUp.getEmail())) {
 			return response.fail("이미 회원가입된 이메일입니다.", HttpStatus.BAD_REQUEST);
@@ -45,11 +52,30 @@ public class UsersService {
 			.email(signUp.getEmail())
 			.password(passwordEncoder.encode(signUp.getPassword()))
 			.name(signUp.getName())
-			.clubName(signUp.getClubName())
 			.clubRole(signUp.getClubRole())
 			.studentNumber(signUp.getStudentNumber())
 			.build();
 		usersRepository.save(users);
+		Optional<Club> club=clubRepository.findByClubName(signUp.getClubName());
+		if (!clubRepository.existsByClubName(signUp.getClubName())){
+			 club = Optional.ofNullable(Club.builder().
+				 clubName(signUp.getClubName())
+				 .grade(signUp.getGrade())
+				 .build());
+			clubRepository.save(club.get());
+		}
+		//TODO 수정
+		if (users.getClubRole() == ClubRole.ADMIN) {
+			club.get().setClubDepartment(signUp.getClubDepartment());
+			club.get().setClubMember(signUp.getClubMember());
+			club.get().setClubProfessor(signUp.getClubProfessor());
+			club.get().setProfessorDepartment(signUp.getProfessorDepartment());
+			clubRepository.save(club.get());
+		}
+
+		users.setClub(club.get());
+
+
 
 		return response.success("회원가입에 성공했습니다.");
 	}
@@ -61,12 +87,9 @@ public class UsersService {
 			return response.fail("해당 유저가 존재하지 않습니다.", HttpStatus.BAD_REQUEST);
 		}
 
-
 		if(!passwordEncoder.matches(login.getPassword(), users.getPassword())){
 			return response.fail("비밀번호가 일치하지 않습니다.", HttpStatus.BAD_REQUEST);
 		}
-
-
 
 		// Authentication 객체 생성
 		UsernamePasswordAuthenticationToken authenticationToken = login.toAuthentication();

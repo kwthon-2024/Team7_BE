@@ -5,7 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import com.team7.club.user.entity.Users; // 정확한 경로로 import
-import com.team7.club.notice.entity.NoticeImage;
+import com.team7.club.notice.Entity.NoticeImage;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -43,7 +43,7 @@ public class Notice {
         this.title = title;
         this.content = content;
     }
-    public void addImage(com.team7.club.notice.entity.NoticeImage image) {
+    public void addImage(NoticeImage image) {
         images.add(image);
         image.setNotice(this);
     }
