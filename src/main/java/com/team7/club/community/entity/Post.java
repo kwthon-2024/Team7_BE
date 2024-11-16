@@ -1,5 +1,6 @@
 package com.team7.club.community.entity;
 
+import com.team7.club.clubs.entity.Club;
 import com.team7.club.user.entity.BaseTime;
 import com.team7.club.user.entity.Users;
 import jakarta.persistence.Column;
@@ -41,10 +42,11 @@ public class Post extends BaseTime {
     @Column
     private String writer;
 
-    @Column
-    private Long clubId;
+    @ManyToOne
+    @JoinColumn(name = "club_id")
+    private Club club;
 
     @ManyToOne
-    @JoinColumn(name = "users_id")
+    @JoinColumn(name = "user_id")
     private Users user;
 }
