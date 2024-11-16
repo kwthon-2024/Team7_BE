@@ -3,10 +3,10 @@ package com.team7.club.user.security;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.annotation.web.configuration.WebSecurityCustomizer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -25,9 +25,23 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 @EnableWebSecurity
 public class SecurityConfig {
-
 	private final JwtTokenProvider jwtTokenProvider;
 	private final RedisTemplate redisTemplate;
+
+	@Bean
+	public WebSecurityCustomizer webSecurityCustomizer() {
+		// Swagger 및 정적 리소스 경로 무시
+		return (web) -> web.ignoring().requestMatchers(
+			"/v3/api-docs/**",
+			"/swagger-ui/**",
+			"/swagger-ui.html",
+			"/swagger-resources/**",
+			"/webjars/**",
+			"/images/**",
+			"/js/**",
+			"/favicon.ico"
+		);
+	}
 
 	@Bean
 	public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
@@ -42,17 +56,25 @@ public class SecurityConfig {
 			)
 			// 요청 권한 설정
 			.authorizeHttpRequests(auth -> auth
+				// Swagger UI 관련 경로 허용
+				.requestMatchers(
+					"/v3/api-docs/**",
+					"/swagger-ui/**",
+					"/swagger-ui.html",
+					"/swagger-resources/**",
+					"/webjars/**"
+				).permitAll()
+				// 공용 엔드포인트 허용
 				.requestMatchers(
 					"/api/users/sign-up",
 					"/api/users/login",
 					"/api/users/reissue",
-					"/api/users/logout",
-
-					"/**"
+					"/api/users/logout"
 				).permitAll()
-
+				// 특정 역할에만 허용되는 엔드포인트
 				.requestMatchers("/api/users/userTest").hasRole("USER")
 				.requestMatchers("/api/users/adminTest").hasRole("ADMIN")
+				// 그 외 모든 요청 인증 필요
 				.anyRequest().authenticated()
 			)
 			// JWT 필터 추가
@@ -68,7 +90,7 @@ public class SecurityConfig {
 	@Bean
 	public CorsConfigurationSource corsConfigurationSource() {
 		CorsConfiguration configuration = new CorsConfiguration();
-		configuration.setAllowedOrigins(Arrays.asList("*")); // 모든 출처 허용
+		configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 모든 출처 허용
 		configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS")); // 허용할 HTTP 메서드
 		configuration.setAllowedHeaders(Arrays.asList("*")); // 모든 헤더 허용
 		configuration.setAllowCredentials(true);

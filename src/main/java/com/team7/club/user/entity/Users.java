@@ -8,6 +8,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.*;
 
@@ -16,6 +19,8 @@ import java.util.List;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+
+import com.team7.club.clubs.entity.Club;
 
 @Builder
 @NoArgsConstructor
@@ -42,8 +47,12 @@ public class Users extends BaseTime implements UserDetails {
 	@Column
 	private String studentNumber;
 
-	@Column
-	private String clubName;
+	// @Column
+	// private String clubName;
+
+	@ManyToOne
+	@JoinColumn(name = "club_id")
+	private Club club;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "club_role", nullable = false)
