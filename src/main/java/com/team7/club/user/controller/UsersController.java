@@ -1,5 +1,7 @@
 package com.team7.club.user.controller;
 
+import com.team7.club.user.dto.reponse.UserInfoResponseDto;
+import com.team7.club.user.dto.reponse.UserResponseDto;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -18,7 +20,7 @@ import com.team7.club.user.dto.request.UserRequestDto;
 import com.team7.club.user.entity.Users;
 import com.team7.club.user.security.CustomUserPrincipal;
 import com.team7.club.user.service.UsersService;
-
+import com.team7.club.clubs.entity.Club;
 @UserApi
 @Slf4j
 @RequiredArgsConstructor
@@ -75,4 +77,24 @@ public class UsersController {
 		Users users = customUserPrincipal.getUser();
 		System.out.println(users.getName());
 	}
+
+	@Operation(summary = "사용자 정보 조회", description = "현재 로그인한 사용자의 정보를 반환합니다.")
+	@GetMapping("/me")
+	public ResponseEntity<?> getUserInfo(@AuthUser CustomUserPrincipal customUserPrincipal) {
+		Users user = customUserPrincipal.getUser();
+		String clubName = user.getClub() != null ? user.getClub().getClubName() : "No Club";
+
+		UserInfoResponseDto userInfo = new UserInfoResponseDto(
+				user.getId(),
+				user.getEmail(),
+				user.getName(),
+				user.getStudentNumber(),
+				clubName // 클럽 이름 추가
+		);
+
+		return ResponseEntity.ok(userInfo);
+	}
+
+
+
 }

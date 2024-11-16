@@ -54,7 +54,6 @@ public class Users extends BaseTime implements UserDetails {
 	@JoinColumn(name = "club_id")
 	private Club club;
 
-
 	@Enumerated(EnumType.STRING)
 	@Column(name = "club_role", nullable = false)
 	private ClubRole clubRole;

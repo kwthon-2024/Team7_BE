@@ -6,7 +6,7 @@ package com.team7.club.user.entity;
  * MEMBER : 동아리원
  * */
 public enum ClubRole {
-	ADMIN,
-	LEADER,
-	MEMBER
+	ROLE_ADMIN,
+	ROLE_LEADER,
+	ROLE_MEMBER
 }
