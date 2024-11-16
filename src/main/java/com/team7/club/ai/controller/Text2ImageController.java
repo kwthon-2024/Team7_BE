@@ -26,7 +26,7 @@ public class Text2ImageController {
 
 	private final GoogleService googleService;
 
-	@Operation(summary = "이미지 생성", description = "이미지 생성")
+	@Operation(summary = "이미지 생성 API", description = "이미지 생성")
 	@ApiResponses(value = {
 		@ApiResponse(responseCode = "200", description = "이미지 생성 성공"),
 		@ApiResponse(responseCode = "400", description = "잘못된 요청")
@@ -34,7 +34,6 @@ public class Text2ImageController {
 	@PostMapping("/generate")
 	public ResponseEntity<?> generateImage(@RequestBody String prompt) throws Exception {
 		String word= googleService.translateText(prompt);
-
 		return new ResponseEntity<>(aiService.generateImage(word), HttpStatus.OK);
 	}
 
