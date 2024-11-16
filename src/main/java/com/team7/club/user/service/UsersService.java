@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.util.NoSuchElementException;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 import com.team7.club.clubs.entity.Club;
@@ -22,6 +23,7 @@ import com.team7.club.clubs.repository.ClubRepository;
 import com.team7.club.common.config.http.Response;
 import com.team7.club.user.dto.reponse.UserResponseDto;
 import com.team7.club.user.dto.request.UserRequestDto;
+import com.team7.club.user.entity.ClubRole;
 import com.team7.club.user.entity.Users;
 import com.team7.club.user.jwt.JwtTokenProvider;
 import com.team7.club.user.repository.UsersRepository;
@@ -53,15 +55,27 @@ public class UsersService {
 			.clubRole(signUp.getClubRole())
 			.studentNumber(signUp.getStudentNumber())
 			.build();
-		if (!clubRepository.existsByClubName(signUp.getClubName())){
-			Club club = Club.builder().
-				clubName(signUp.getClubName())
-				.build();
-			clubRepository.save(club);
-		}
-		users.setClub(clubRepository.findByClubName(signUp.getClubName()).get());
-
 		usersRepository.save(users);
+		Optional<Club> club=clubRepository.findByClubName(signUp.getClubName());
+		if (!clubRepository.existsByClubName(signUp.getClubName())){
+			 club = Optional.ofNullable(Club.builder().
+				 clubName(signUp.getClubName())
+				 .grade(signUp.getGrade())
+				 .build());
+			clubRepository.save(club.get());
+		}
+		//TODO 수정
+		if (users.getClubRole() == ClubRole.ADMIN) {
+			club.get().setClubDepartment(signUp.getClubDepartment());
+			club.get().setClubMember(signUp.getClubMember());
+			club.get().setClubProfessor(signUp.getClubProfessor());
+			club.get().setProfessorDepartment(signUp.getProfessorDepartment());
+			clubRepository.save(club.get());
+		}
+
+		users.setClub(club.get());
+
+
 
 		return response.success("회원가입에 성공했습니다.");
 	}

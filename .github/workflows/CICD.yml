@@ -50,6 +50,10 @@ jobs:
           spring.data.redis.host=${{ secrets.REDIS_HOST }}
           spring.data.redis.port=6379
           
+          cloud.aws.credentials.access-key=${{ secrets.ACCESS_KEY }}
+          cloud.aws.credentials.secret-key=${{ secrets.SECRET_KEY }}
+          cloud.aws.region.static= ap-northeast-2
+          cloud.aws.s3.bucket= team7buckets
           EOT
         shell: bash
 

@@ -31,6 +31,16 @@ public class Club extends BaseTime {
 
 	@Column
 	private String clubName;
+	@Column
+	private Integer clubMember; //동아리 인원
+	@Column
+	private String clubProfessor; //동아리 지도 교수
+	@Column
+	private String clubDepartment; //동아리 소속학부
+	@Column
+	private String professorDepartment; //동아리 지도 교수 학부
+	@Column
+	private Integer grade; // 학년
 
 
 }
