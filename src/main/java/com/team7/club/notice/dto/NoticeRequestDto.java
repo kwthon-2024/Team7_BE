@@ -1,16 +1,14 @@
 package com.team7.club.notice.dto;
 
-
 import lombok.Getter;
-import lombok.Setter;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 @Getter
-@Setter
 public class NoticeRequestDto {
 
-    private String writer;
-    private String title;
-    private String content;
-
-    private String image; // 선택 사항
+    private String title; // 제목
+    private String content; // 내용
+    private List<MultipartFile> images; // 업로드할 이미지 리스트
 }

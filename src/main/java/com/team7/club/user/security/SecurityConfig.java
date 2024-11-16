@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -46,14 +47,19 @@ public class SecurityConfig {
 					"/api/users/sign-up",
 					"/api/users/login",
 					"/api/users/reissue",
-					"/api/users/logout",
-
-					"/**"
+					"/api/users/logout"
 				).permitAll()
 
 				.requestMatchers("/api/users/userTest").hasRole("USER")
 				.requestMatchers("/api/users/adminTest").hasRole("ADMIN")
-				.anyRequest().authenticated()
+
+					// /api/club/notifications 접근 권한 설정 추가
+					.requestMatchers(HttpMethod.POST, "/api/club/notifications").hasRole("ADMIN") // POST는 ADMIN만 허용
+					.requestMatchers(HttpMethod.PUT, "/api/club/notifications/**").hasRole("ADMIN") // PUT은 ADMIN만 허용
+					.requestMatchers(HttpMethod.DELETE, "/api/club/notifications/**").hasRole("ADMIN") // DELETE는 ADMIN만 허용
+					.requestMatchers(HttpMethod.GET, "/api/club/notifications/**").permitAll() // GET은 모든 사용자 허용
+
+					.anyRequest().authenticated()
 			)
 			// JWT 필터 추가
 			.addFilterBefore(
